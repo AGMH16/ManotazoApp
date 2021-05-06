@@ -9,6 +9,7 @@ import java.awt.Image;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -30,6 +31,7 @@ public class frmMain extends javax.swing.JFrame {
     private Jugador player3;
     String[] columnNames = {"Puesto", "Jugador", "Tiempo"};
     DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+    private static Semaphore mutex = new Semaphore(1,true);
 
     /**
      * Creates new form frmMain
@@ -72,17 +74,24 @@ public class frmMain extends javax.swing.JFrame {
             System.out.println("Jugador " + this.numero + " está atento al mazo");
             while(!intento) {
                 if (generador.getNumeroCarta() == 5) {
-                    manotazo();
-                    System.out.println("Jugador " + this.numero + " entrando a la región crítica");
-                    ordenJugadores[contadorJugadores] = "Jugador " + String.valueOf(numero);
-                    DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-                    Date date = new Date();
-                    ordenTiempos[contadorJugadores] = dateFormat.format(date);
-                    ordenLugares[contadorJugadores] = String.valueOf(contadorJugadores+1) + " lugar";
-                    contadorJugadores++;
-                    System.out.println("Jugador " + this.numero + " saliendo de la región crítica");
-                    intento = true;
-                    System.out.println("Jugador " + this.numero + " esperando resultados");
+                    try {
+                        Manotazo manotazo=new Manotazo();
+                        manotazo.manotazo();
+                        mutex.acquire();
+                        System.out.println("Jugador " + this.numero + " entrando a la región crítica");
+                        ordenJugadores[contadorJugadores] = "Jugador " + String.valueOf(numero);
+                        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+                        Date date = new Date();
+                        ordenTiempos[contadorJugadores] = dateFormat.format(date);
+                        ordenLugares[contadorJugadores] = String.valueOf(contadorJugadores+1) + " lugar";
+                        contadorJugadores++;
+                        mutex.release();
+                        System.out.println("Jugador " + this.numero + " saliendo de la región crítica");
+                        intento = true;
+                        System.out.println("Jugador " + this.numero + " esperando resultados");
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 try {
                     Thread.sleep(10);
@@ -91,6 +100,7 @@ public class frmMain extends javax.swing.JFrame {
                 }
             }
         }
+       public class Manotazo extends Thread {
         
         public void manotazo() {
             Image img = new ImageIcon(this.getClass().getResource("/img/P"+String.valueOf(numero)+"-playing.png")).getImage();
@@ -102,7 +112,7 @@ public class frmMain extends javax.swing.JFrame {
             if (numero == 3)
                 lblJugador3.setIcon(new ImageIcon(img));
         }
-    }
+    }}
     
        public class Uno extends Thread {
         private int numeroCarta;
