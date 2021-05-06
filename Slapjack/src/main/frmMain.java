@@ -104,7 +104,7 @@ public class frmMain extends javax.swing.JFrame {
         }
     }
     
-    public class Uno {
+       public class Uno extends Thread {
         private int numeroCarta;
         
         public Uno(){
@@ -122,8 +122,14 @@ public class frmMain extends javax.swing.JFrame {
             model = new DefaultTableModel(columnNames, 0);
         }
         
-        public void comenzar_juego(){
-            System.out.println("--------------INICIO------------------------");
+       // public void comenzar_juego(){
+           
+       // }
+
+        
+        @Override
+        public void run(){
+             System.out.println("--------------INICIO------------------------");
             System.out.println("Preparando el juego");
             System.out.println("Barajeando...");
             System.out.println("Mazo listo para el juego");
@@ -155,11 +161,11 @@ public class frmMain extends javax.swing.JFrame {
             btnJugar.setEnabled(true);
             System.out.println("--------------FIN------------------------\n");
         }
-
         public int getNumeroCarta() {
             return numeroCarta;
         }
     }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -271,7 +277,7 @@ public class frmMain extends javax.swing.JFrame {
 
     private void btnJugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJugarActionPerformed
         generador = new Uno();
-        generador.comenzar_juego();
+        generador.start();
         player1.start();
         player2.start();
         player3.start();
