@@ -20,7 +20,7 @@ import javax.swing.table.DefaultTableModel;
  * @author Miguel Matul <https://github.com/MigueMat4>
  */
 public class frmMain extends javax.swing.JFrame {
-    
+
     private Uno generador;
     private String[] ordenJugadores;
     private String[] ordenTiempos;
@@ -31,7 +31,7 @@ public class frmMain extends javax.swing.JFrame {
     private Jugador player3;
     String[] columnNames = {"Puesto", "Jugador", "Tiempo"};
     DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-    private static Semaphore mutex = new Semaphore(1,true);
+    private static Semaphore mutex = new Semaphore(1, true);
 
     /**
      * Creates new form frmMain
@@ -45,37 +45,38 @@ public class frmMain extends javax.swing.JFrame {
         player2 = new Jugador(2);
         player3 = new Jugador(3);
     }
-    
+
     public class Jugador extends Thread {
+
         private final int numero;
         private boolean intento = false;
-        
+
         public Jugador(int num) {
             numero = num;
             Image img = new ImageIcon(this.getClass().getResource("/img/Player-base.png")).getImage();
             if (numero == 1) {
-                img = img.getScaledInstance(140, 140,  java.awt.Image.SCALE_SMOOTH);
+                img = img.getScaledInstance(140, 140, java.awt.Image.SCALE_SMOOTH);
                 lblJugador1.setIcon(new ImageIcon(img));
             }
             if (numero == 2) {
                 img = new ImageIcon(this.getClass().getResource("/img/Player-base-inverted.png")).getImage();
-                img = img.getScaledInstance(140, 140,  java.awt.Image.SCALE_SMOOTH);
+                img = img.getScaledInstance(140, 140, java.awt.Image.SCALE_SMOOTH);
                 lblJugador2.setIcon(new ImageIcon(img));
             }
             if (numero == 3) {
-                img = img.getScaledInstance(140, 140,  java.awt.Image.SCALE_SMOOTH);
+                img = img.getScaledInstance(140, 140, java.awt.Image.SCALE_SMOOTH);
                 lblJugador3.setIcon(new ImageIcon(img));
             }
         }
-        
+
         @Override
-        public void run(){
+        public void run() {
             System.out.println("Jugador " + this.numero + " listo para jugar");
             System.out.println("Jugador " + this.numero + " está atento al mazo");
-            while(!intento) {
+            while (!intento) {
                 if (generador.getNumeroCarta() == 5) {
                     try {
-                        Manotazo manotazo=new Manotazo();
+                        Manotazo manotazo = new Manotazo();
                         manotazo.manotazo();
                         mutex.acquire();
                         System.out.println("Jugador " + this.numero + " entrando a la región crítica");
@@ -83,7 +84,7 @@ public class frmMain extends javax.swing.JFrame {
                         DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
                         Date date = new Date();
                         ordenTiempos[contadorJugadores] = dateFormat.format(date);
-                        ordenLugares[contadorJugadores] = String.valueOf(contadorJugadores+1) + " lugar";
+                        ordenLugares[contadorJugadores] = String.valueOf(contadorJugadores + 1) + " lugar";
                         contadorJugadores++;
                         mutex.release();
                         System.out.println("Jugador " + this.numero + " saliendo de la región crítica");
@@ -100,24 +101,30 @@ public class frmMain extends javax.swing.JFrame {
                 }
             }
         }
-       public class Manotazo extends Thread {
-        
-        public void manotazo() {
-            Image img = new ImageIcon(this.getClass().getResource("/img/P"+String.valueOf(numero)+"-playing.png")).getImage();
-            img = img.getScaledInstance(140, 140,  java.awt.Image.SCALE_SMOOTH);
-            if (numero == 1)
-                lblJugador1.setIcon(new ImageIcon(img));
-            if (numero == 2)
-                lblJugador2.setIcon(new ImageIcon(img));
-            if (numero == 3)
-                lblJugador3.setIcon(new ImageIcon(img));
+
+        public class Manotazo extends Thread {
+
+            public void manotazo() {
+                Image img = new ImageIcon(this.getClass().getResource("/img/P" + String.valueOf(numero) + "-playing.png")).getImage();
+                img = img.getScaledInstance(140, 140, java.awt.Image.SCALE_SMOOTH);
+                if (numero == 1) {
+                    lblJugador1.setIcon(new ImageIcon(img));
+                }
+                if (numero == 2) {
+                    lblJugador2.setIcon(new ImageIcon(img));
+                }
+                if (numero == 3) {
+                    lblJugador3.setIcon(new ImageIcon(img));
+                }
+            }
         }
-    }}
-    
-       public class Uno extends Thread {
+    }
+
+    public class Uno extends Thread {
+
         private int numeroCarta;
-        
-        public Uno(){
+
+        public Uno() {
             numeroCarta = 0;
             ordenJugadores = new String[3];
             ordenTiempos = new String[3];
@@ -126,33 +133,30 @@ public class frmMain extends javax.swing.JFrame {
             // Cartas
             lblCarta.setText("");
             Image img = new ImageIcon(this.getClass().getResource("/cards/0.png")).getImage();
-            img = img.getScaledInstance(93, 138,  java.awt.Image.SCALE_SMOOTH);
+            img = img.getScaledInstance(93, 138, java.awt.Image.SCALE_SMOOTH);
             lblCarta.setIcon(new ImageIcon(img));
             // Tabla
             model = new DefaultTableModel(columnNames, 0);
         }
-        
-       // public void comenzar_juego(){
-           
-       // }
 
-        
+        // public void comenzar_juego(){
+        // }
         @Override
-        public void run(){
-             System.out.println("--------------INICIO------------------------");
+        public void run() {
+            System.out.println("--------------INICIO------------------------");
             System.out.println("Preparando el juego");
             System.out.println("Barajeando...");
             System.out.println("Mazo listo para el juego");
             btnJugar.setText("Jugando...");
-            while(numeroCarta != 5) {
+            while (numeroCarta != 5) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                numeroCarta = (int)(Math.random() * 10 + 0);
-                Image img = new ImageIcon(this.getClass().getResource("/cards/"+ String.valueOf(numeroCarta) +".png")).getImage();
-                img = img.getScaledInstance(93, 138,  java.awt.Image.SCALE_SMOOTH);
+                numeroCarta = (int) (Math.random() * 10 + 0);
+                Image img = new ImageIcon(this.getClass().getResource("/cards/" + String.valueOf(numeroCarta) + ".png")).getImage();
+                img = img.getScaledInstance(93, 138, java.awt.Image.SCALE_SMOOTH);
                 lblCarta.setIcon(new ImageIcon(img));
             }
             try {
@@ -161,21 +165,26 @@ public class frmMain extends javax.swing.JFrame {
             } catch (InterruptedException ex) {
                 Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
             }
-            for(int i=0; i<3; i++){
+            for (int i = 0; i < 3; i++) {
                 Object[] rowdata;
-                rowdata = new Object[] {ordenLugares[i], ordenJugadores[i], ordenTiempos[i]};
+                rowdata = new Object[]{ordenLugares[i], ordenJugadores[i], ordenTiempos[i]};
                 model.addRow(rowdata);
             }
             tblResultados.setModel(model);
             btnJugar.setText("Jugar de nuevo");
+
+            generador = new Uno();
+            player1 = new Jugador(1);
+            player2 = new Jugador(2);
+            player3 = new Jugador(3);
             btnJugar.setEnabled(true);
             System.out.println("--------------FIN------------------------\n");
         }
+
         public int getNumeroCarta() {
             return numeroCarta;
         }
     }
-
 
     /**
      * This method is called from within the constructor to initialize the form.
